@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Set;
 
@@ -40,6 +41,16 @@ public class ScheduleController {
     ApiResponse<List<ScheduleResponse>> findByStartDate(@PathVariable("date") LocalDate localDate) {
         return ApiResponse.<List<ScheduleResponse>>builder()
                 .result(scheduleService.findByStartDate(localDate))
+                .build();
+    }
+
+    @GetMapping("/by-date-and-movie-id/{date}/{movieId}")
+    ApiResponse<List<ScheduleResponse>> findByMovieIdAndDate(
+            @PathVariable("date") LocalDate localDate,
+            @PathVariable("movieId") String movieId
+    ) {
+        return ApiResponse.<List<ScheduleResponse>>builder()
+                .result(scheduleService.findByMovieIdAndDate(movieId,localDate))
                 .build();
     }
 }

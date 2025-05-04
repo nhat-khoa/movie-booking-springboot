@@ -10,7 +10,6 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Set;
-import java.util.UUID;
 
 @Repository
 public interface ScheduleRepository extends JpaRepository<Schedule, String> {
@@ -28,4 +27,11 @@ public interface ScheduleRepository extends JpaRepository<Schedule, String> {
             "GROUP BY s.movie.id, s.id " +
             "ORDER BY s.startTime ASC")
     List<Schedule> findByStartDate(@Param("targetDate") LocalDate targetDate);
+
+    @Query("SELECT s FROM Schedule s WHERE s.movie.id = :movieId AND FUNCTION('DATE', s.startTime) = :date")
+    List<Schedule> findByMovieIdAndDate(
+            @Param("movieId") String movieId,
+            @Param("date") LocalDate date
+    );
+
 }

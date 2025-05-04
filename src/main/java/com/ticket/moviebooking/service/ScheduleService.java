@@ -1,6 +1,7 @@
 package com.ticket.moviebooking.service;
 
 import com.ticket.moviebooking.dto.response.ScheduleResponse;
+import com.ticket.moviebooking.entity.Schedule;
 import com.ticket.moviebooking.mapper.ScheduleMapper;
 import com.ticket.moviebooking.repository.ScheduleRepository;
 import lombok.AccessLevel;
@@ -11,6 +12,7 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -44,6 +46,14 @@ public class ScheduleService {
                 .toList();
     }
 
+    public List<ScheduleResponse> findByMovieIdAndDate(String movieId, LocalDate date) {
+
+        return scheduleRepository.findByMovieIdAndDate(movieId, date)
+                .stream()
+                .map(scheduleMapper::toScheduleResponse)
+                .sorted(Comparator.comparing(ScheduleResponse::getStartTime))
+                .toList();
+    }
 
 
 }

@@ -5,6 +5,8 @@ import lombok.*;
 import lombok.experimental.FieldDefaults;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 @Data
 @Builder
@@ -17,21 +19,18 @@ public class Ticket {
     @GeneratedValue(strategy = GenerationType.UUID)
     String id;
 
+    LocalDateTime bookedAt;
+    String status; // pending, paid
+
     @ManyToOne
     @JoinColumn(name = "schedule_id", nullable = false)
     Schedule schedule;
 
     @ManyToOne
-    @JoinColumn(name = "seat_id", nullable = false)
-    Seat seat;
-
-    @ManyToOne
     @JoinColumn(name = "user_id", nullable = false)
     User user;
 
-    LocalDateTime reservedAt;
+    @OneToMany(mappedBy = "ticket", cascade = CascadeType.ALL, orphanRemoval = true)
+    List<TicketSeat> ticketSeats = new ArrayList<>();
 
-    String status; // reserved, paid, canceled...
-
-    // Optional: price (giá vé cụ thể cho ghế này)
 }

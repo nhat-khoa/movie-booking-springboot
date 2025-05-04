@@ -4,24 +4,23 @@ import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 
-import java.util.Set;
-
 @Data
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE)
 @Entity
-public class Category {
+public class TicketSeat {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
     String id;
 
-    @Column(unique = true, nullable = false)
-    String name;
+    @ManyToOne
+    @JoinColumn(name = "ticket_id", nullable = false)
+    Ticket ticket;
 
-    String description;
+    @ManyToOne
+    @JoinColumn(name = "seat_id", nullable = false)
+    Seat seat;
 
-    @OneToMany(mappedBy = "category")
-    Set<MovieCategory> movieCategories;
 }

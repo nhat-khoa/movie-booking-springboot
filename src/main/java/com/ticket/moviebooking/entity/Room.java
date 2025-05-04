@@ -19,6 +19,8 @@ public class Room {
 
     String name;
     Integer totalSeats;
+    Integer doubleSeats;
+    Integer singleSeats;
     String description;
 
     @OneToMany(mappedBy = "room", cascade = CascadeType.ALL)

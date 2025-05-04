@@ -1,0 +1,65 @@
+package com.ticket.moviebooking.service;
+
+import com.ticket.moviebooking.dto.response.SeatResponse;
+import com.ticket.moviebooking.dto.response.TicketResponse;
+import com.ticket.moviebooking.entity.*;
+import com.ticket.moviebooking.mapper.SeatMapper;
+import com.ticket.moviebooking.mapper.TicketMapper;
+import com.ticket.moviebooking.repository.ScheduleRepository;
+import com.ticket.moviebooking.repository.SeatRepository;
+import com.ticket.moviebooking.repository.TicketRepository;
+import com.ticket.moviebooking.repository.UserRepository;
+import lombok.AccessLevel;
+import lombok.RequiredArgsConstructor;
+import lombok.experimental.FieldDefaults;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Sort;
+import org.springframework.stereotype.Service;
+
+import java.time.LocalDateTime;
+import java.util.List;
+
+@Service
+@RequiredArgsConstructor
+@Slf4j
+@FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
+public class TicketService {
+    TicketRepository ticketRepository;
+    ScheduleRepository scheduleRepository;
+    UserRepository userRepository;
+    SeatRepository seatRepository;
+    TicketMapper ticketMapper;
+
+    public Boolean existsByScheduleIdAndSeatId(String scheduleId, String seatId){
+        return ticketRepository.existsByScheduleIdAndSeatId(scheduleId, seatId);
+    }
+
+    public TicketResponse createTicket(String scheduleId, String userId, List<String> seatIds) {
+        // Lấy Schedule và User
+        Schedule schedule = scheduleRepository.findById(scheduleId)
+                .orElseThrow(() -> new RuntimeException("Schedule not found"));
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+
+        // Tạo Ticket
+        Ticket ticket = new Ticket();
+        ticket.setBookedAt(LocalDateTime.now());
+        ticket.setStatus("pending");
+        ticket.setSchedule(schedule);
+        ticket.setUser(user);
+
+        // Lấy danh sách ghế
+        List<Seat> seats = seatRepository.findAllById(seatIds);
+
+        // Tạo TicketSeat cho từng ghế
+        for (Seat seat : seats) {
+            TicketSeat ts = new TicketSeat();
+            ts.setTicket(ticket);
+            ts.setSeat(seat);
+            ticket.getTicketSeats().add(ts);
+        }
+
+        // Lưu Ticket (các TicketSeat sẽ tự lưu nhờ cascade)
+        return ticketMapper.toTicketResponse(ticketRepository.save(ticket));
+    }
+}
