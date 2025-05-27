@@ -1,9 +1,13 @@
 package com.ticket.moviebooking.repository;
 
 import com.ticket.moviebooking.entity.Ticket;
+import com.ticket.moviebooking.entity.User;
+import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
+
+import java.util.List;
 
 public interface TicketRepository extends JpaRepository<Ticket, String> {
     @Query("""
@@ -13,4 +17,6 @@ public interface TicketRepository extends JpaRepository<Ticket, String> {
     """)
     Boolean existsByScheduleIdAndSeatId(@Param("scheduleId") String scheduleId,
                                         @Param("seatId") String seatId);
+
+    List<Ticket> findAllByUser(User user, Sort sort);
 }

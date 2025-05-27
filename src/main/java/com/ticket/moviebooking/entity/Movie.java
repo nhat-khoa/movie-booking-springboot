@@ -24,7 +24,7 @@ public class Movie {
     String titleEnglish;
     LocalDate releaseDate;
     Integer duration;
-    Locale language;
+    String language;
     String director;
     String category;
 

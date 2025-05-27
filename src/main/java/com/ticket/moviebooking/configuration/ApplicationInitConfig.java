@@ -1,8 +1,10 @@
 package com.ticket.moviebooking.configuration;
 
+import com.ticket.moviebooking.entity.Movie;
 import com.ticket.moviebooking.entity.Room;
 import com.ticket.moviebooking.entity.Schedule;
 import com.ticket.moviebooking.entity.Seat;
+import com.ticket.moviebooking.enums.AgeRating;
 import com.ticket.moviebooking.exception.AppException;
 import com.ticket.moviebooking.exception.ErrorCode;
 import com.ticket.moviebooking.repository.MovieRepository;
@@ -13,14 +15,21 @@ import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.csv.CSVFormat;
+import org.apache.commons.csv.CSVRecord;
 import org.springframework.boot.ApplicationRunner;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.core.io.ClassPathResource;
+import org.apache.commons.csv.CSVParser;
 
+import java.io.InputStreamReader;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 
 @Configuration
 @RequiredArgsConstructor
@@ -38,6 +47,13 @@ public class ApplicationInitConfig {
         log.info("Initializing application.....");
         return args -> {
             log.info("Seeding test schedule data...");
+
+//            if(movieRepository.count() == 0){
+//                importMoviesFromCSV("data/movie.csv");
+//            }
+//            if(roomRepository.count() == 0){
+//                importRoomsFromCSV("data/room.csv");
+//            }
 
 //            scheduleRepository.deleteAll();
 //            initScheduleData(
@@ -97,7 +113,6 @@ public class ApplicationInitConfig {
         }
     }
 
-
     private void initScheduleData(String roomId, String movieId) {
         LocalDateTime startTime;
         for (int i = 0; i < 3; i++) {
@@ -123,5 +138,63 @@ public class ApplicationInitConfig {
                 startTime = startTime.plusHours(2).plusMinutes(30);
             }
         }
+    }
+
+    private void importMoviesFromCSV(String filePath) throws Exception {
+        var resource = new ClassPathResource(filePath);
+        var reader = new InputStreamReader(resource.getInputStream());
+
+        List<Movie> movies = new ArrayList<>();
+        try (CSVParser csvParser = new CSVParser(reader, CSVFormat.DEFAULT.withFirstRecordAsHeader())) {
+            for (CSVRecord record : csvParser) {
+                Movie movie = new Movie();
+                movie.setId(record.get("id"));
+                movie.setTitle(record.get("title"));
+                movie.setTitle(record.get("title_english"));
+                movie.setDescription(record.get("description"));
+                movie.setReleaseDate(LocalDate.parse(record.get("release_date")));
+
+                String durationStr = record.get("duration");
+                if (durationStr == null || durationStr.isBlank()) {
+                    movie.setDuration(null);
+                } else {
+                    movie.setDuration(Integer.parseInt(durationStr));
+                }
+
+                movie.setLanguage(record.get("language"));
+                movie.setDirector(record.get("director"));
+                movie.setCast(record.get("cast"));
+                movie.setPosterUrl(record.get("poster_url"));
+                movie.setTrailerVideoUrl(record.get("trailer_video_url"));
+                movie.setAgeRating(
+                        AgeRating.valueOf(record.get("age_rating").toUpperCase(Locale.ROOT))
+                );
+                movie.setCategory(record.get("category"));
+                movies.add(movie);
+            }
+        }
+
+        movieRepository.saveAll(movies);
+    }
+
+    private void importRoomsFromCSV(String filePath) throws Exception {
+        var resource = new ClassPathResource(filePath);
+        var reader = new InputStreamReader(resource.getInputStream());
+
+        List<Room> rooms = new ArrayList<>();
+        try (CSVParser csvParser = new CSVParser(reader, CSVFormat.DEFAULT.withFirstRecordAsHeader())) {
+            for (CSVRecord record : csvParser) {
+                Room room = new Room();
+                room.setId(record.get("id"));
+                room.setName(record.get("name"));
+                room.setTotalSeats(Integer.parseInt(record.get("total_seats")));
+                room.setSingleSeats(Integer.parseInt(record.get("single_seats")));
+                room.setDoubleSeats(Integer.parseInt(record.get("double_seats")));
+                room.setDescription(record.get("description"));
+                rooms.add(room);
+            }
+        }
+
+        roomRepository.saveAll(rooms);
     }
 }

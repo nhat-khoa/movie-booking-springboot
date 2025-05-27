@@ -1,6 +1,7 @@
 package com.ticket.moviebooking.dto.response;
 
 import com.ticket.moviebooking.entity.Schedule;
+import com.ticket.moviebooking.entity.Seat;
 import com.ticket.moviebooking.entity.TicketSeat;
 import com.ticket.moviebooking.entity.User;
 import jakarta.persistence.*;
@@ -20,6 +21,7 @@ public class TicketResponse {
     String id;
     LocalDateTime bookedAt;
     String status; // pending, paid
-    String scheduleId;
-    String userId;
+    UserResponse user;
+    ScheduleResponse schedule;
+    List<SeatResponse> seatList;
 }

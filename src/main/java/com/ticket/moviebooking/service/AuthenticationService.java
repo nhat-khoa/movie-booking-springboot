@@ -65,19 +65,6 @@ public class AuthenticationService {
     @Value("${REFRESHABLE_DURATION}")
     protected long REFRESHABLE_DURATION;
 
-    public IntrospectResponse introspect(IntrospectRequest request) throws JOSEException, ParseException {
-        var token = request.getToken();
-        boolean isValid = true;
-
-        try {
-            verifyToken(token, false);
-        } catch (AppException e) {
-            isValid = false;
-        }
-
-        return IntrospectResponse.builder().valid(isValid).build();
-    }
-
     public AuthenticationResponse loginWithGoogle(AuthenticationRequest request) throws GeneralSecurityException, IOException {
 
         GoogleIdTokenVerifier verifier = new GoogleIdTokenVerifier
@@ -111,35 +98,40 @@ public class AuthenticationService {
                 .build();
     }
 
-    private SignedJWT verifyToken(String token, boolean isRefresh) throws JOSEException, ParseException {
-        JWSVerifier verifier = new MACVerifier(SIGNER_KEY.getBytes());
+    public IntrospectResponse introspect(String token) {
+        verifyToken(token, false);
+        return IntrospectResponse.builder().valid(true).build();
+    }
 
-        SignedJWT signedJWT = SignedJWT.parse(token);
+    private void verifyToken(String token, boolean isRefresh){
+        try{
+            JWSVerifier verifier = new MACVerifier(SIGNER_KEY.getBytes());
+            SignedJWT signedJWT = SignedJWT.parse(token);
+            Date expiryTime = (isRefresh)
+                    ? new Date(signedJWT
+                    .getJWTClaimsSet()
+                    .getIssueTime()
+                    .toInstant()
+                    .plus(REFRESHABLE_DURATION, ChronoUnit.SECONDS)
+                    .toEpochMilli())
+                    : signedJWT.getJWTClaimsSet().getExpirationTime();
 
-        Date expiryTime = (isRefresh)
-                ? new Date(signedJWT
-                .getJWTClaimsSet()
-                .getIssueTime()
-                .toInstant()
-                .plus(REFRESHABLE_DURATION, ChronoUnit.SECONDS)
-                .toEpochMilli())
-                : signedJWT.getJWTClaimsSet().getExpirationTime();
+            var verified = signedJWT.verify(verifier);
+            if (!(verified && expiryTime.after(new Date())))
+                throw new AppException(ErrorCode.UNAUTHENTICATED);
 
-        var verified = signedJWT.verify(verifier);
-
-        if (!(verified && expiryTime.after(new Date()))) throw new AppException(ErrorCode.UNAUTHENTICATED);
-
-        if (invalidatedTokenRepository.existsById(signedJWT.getJWTClaimsSet().getJWTID()))
+            if (invalidatedTokenRepository.existsById(signedJWT.getJWTClaimsSet().getJWTID()))
+                throw new AppException(ErrorCode.UNAUTHENTICATED);
+        } catch (Exception e) {
             throw new AppException(ErrorCode.UNAUTHENTICATED);
-
-        return signedJWT;
+        }
     }
 
     private String generateToken(User user) {
         JWSHeader header = new JWSHeader(JWSAlgorithm.HS512);
 
         JWTClaimsSet jwtClaimsSet = new JWTClaimsSet.Builder()
-                .subject(user.getEmail())
+                .subject(user.getId())
                 .issuer("api.movie-booking.com")
                 .issueTime(new Date())
                 .expirationTime(new Date(

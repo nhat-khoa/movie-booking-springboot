@@ -22,7 +22,7 @@ public class MovieResponse {
     String titleEnglish;
     LocalDate releaseDate;
     Integer duration;
-    Locale language;
+    String language;
     String director;
     String category;
     String posterUrl;

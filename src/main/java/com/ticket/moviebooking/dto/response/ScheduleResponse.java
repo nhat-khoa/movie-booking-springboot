@@ -19,6 +19,6 @@ import java.time.LocalDateTime;
 public class ScheduleResponse {
     String id;
     LocalDateTime startTime;
-    String movieId;
-    String roomId;
+    MovieResponse movie;
+    RoomResponse room;
 }

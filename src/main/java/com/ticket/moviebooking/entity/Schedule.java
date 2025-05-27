@@ -5,6 +5,8 @@ import lombok.*;
 import lombok.experimental.FieldDefaults;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 @Data
 @Builder
@@ -32,4 +34,8 @@ public class Schedule {
     @ManyToOne
     @JoinColumn(name = "room_id", nullable = false)
     Room room;
+
+    @OneToMany(mappedBy = "schedule", cascade = CascadeType.REMOVE, orphanRemoval = true)
+    private List<Ticket> tickets = new ArrayList<>();
+
 }

@@ -9,12 +9,21 @@ import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @RestController
 @RequestMapping("/ticket")
 @RequiredArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 public class TicketController {
     TicketService ticketService;
+
+    @GetMapping("/by-user")
+    public ApiResponse<List<TicketResponse>> getTicketByUser() {
+        return ApiResponse.<List<TicketResponse>>builder()
+                .result(ticketService.getTicketByUser())
+                .build();
+    }
 
     @GetMapping("/exists-by-schedule-id-and-seat-id")
     public ApiResponse<Boolean> existsByScheduleIdAndSeatId(
@@ -31,8 +40,9 @@ public class TicketController {
         return ApiResponse.<TicketResponse>builder()
                 .result(ticketService.createTicket(
                         request.getScheduleId(),
-                        request.getUserId(),
                         request.getSeatIds()))
                 .build();
     }
+
+
 }
