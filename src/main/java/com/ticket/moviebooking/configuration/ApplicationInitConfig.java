@@ -48,12 +48,7 @@ public class ApplicationInitConfig {
         return args -> {
             log.info("Seeding test schedule data...");
 
-//            if(movieRepository.count() == 0){
-//                importMoviesFromCSV("data/movie.csv");
-//            }
-//            if(roomRepository.count() == 0){
-//                importRoomsFromCSV("data/room.csv");
-//            }
+            // Import movies from CSV file by dbeaver before run this code
 
 //            scheduleRepository.deleteAll();
 //            initScheduleData(

@@ -2,6 +2,8 @@ package com.ticket.moviebooking.service;
 
 import com.ticket.moviebooking.dto.response.ScheduleResponse;
 import com.ticket.moviebooking.entity.Schedule;
+import com.ticket.moviebooking.exception.AppException;
+import com.ticket.moviebooking.exception.ErrorCode;
 import com.ticket.moviebooking.mapper.ScheduleMapper;
 import com.ticket.moviebooking.repository.ScheduleRepository;
 import lombok.AccessLevel;
@@ -55,5 +57,10 @@ public class ScheduleService {
                 .toList();
     }
 
+    public ScheduleResponse getScheduleById(String scheduleId) {
+        Schedule schedule = scheduleRepository.findById(scheduleId)
+                .orElseThrow(() -> new AppException(ErrorCode.SCHEDULE_NOT_EXISTED));
+        return scheduleMapper.toScheduleResponse(schedule);
+    }
 
 }

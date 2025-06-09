@@ -52,4 +52,11 @@ public class ScheduleController {
                 .result(scheduleService.findByMovieIdAndDate(movieId,localDate))
                 .build();
     }
+
+    @GetMapping("/by-id/{scheduleId}")
+    ApiResponse<ScheduleResponse> getScheduleById(@PathVariable("scheduleId") String scheduleId) {
+        return ApiResponse.<ScheduleResponse>builder()
+                .result(scheduleService.getScheduleById(scheduleId))
+                .build();
+    }
 }
