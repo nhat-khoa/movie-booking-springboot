@@ -110,7 +110,7 @@ public class ApplicationInitConfig {
 
     private void initScheduleData(String roomId, String movieId) {
         LocalDateTime startTime;
-        for (int i = 0; i < 3; i++) {
+        for (int i = 0; i < 7; i++) {
             startTime = LocalDateTime.of(
                     LocalDate.now().plusDays(i),
                     LocalTime.of(8, 30)

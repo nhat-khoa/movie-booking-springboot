@@ -1,15 +1,9 @@
 package com.ticket.moviebooking.dto.response;
 
-import com.ticket.moviebooking.entity.Schedule;
-import com.ticket.moviebooking.entity.Seat;
-import com.ticket.moviebooking.entity.TicketSeat;
-import com.ticket.moviebooking.entity.User;
-import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
 import java.util.List;
 
 @Data
