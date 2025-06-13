@@ -1,5 +1,6 @@
 package com.ticket.moviebooking.service;
 
+import com.ticket.moviebooking.dto.request.TicketRequest;
 import com.ticket.moviebooking.dto.response.SeatResponse;
 import com.ticket.moviebooking.dto.response.TicketResponse;
 import com.ticket.moviebooking.entity.*;
@@ -38,25 +39,22 @@ public class TicketService {
         return ticketRepository.existsByScheduleIdAndSeatId(scheduleId, seatId);
     }
 
-    public TicketResponse createTicket(String scheduleId, List<String> seatIds) {
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        String userId = authentication.getName(); // Lấy userId từ token
+    public TicketResponse createTicket(TicketRequest request) {
 
-        // Lấy Schedule và User
-        Schedule schedule = scheduleRepository.findById(scheduleId)
+        Schedule schedule = scheduleRepository.findById(request.getScheduleId())
                 .orElseThrow(() -> new AppException(ErrorCode.SCHEDULE_NOT_EXISTED));
-        User user = userRepository.findById(userId)
+        User user = userRepository.findById(request.getUserId())
                 .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_EXISTED));
 
         // Tạo Ticket
         Ticket ticket = new Ticket();
         ticket.setBookedAt(LocalDateTime.now());
-        ticket.setStatus("pending");
+        ticket.setTotalPrice(request.getTotalPrice());
         ticket.setSchedule(schedule);
         ticket.setUser(user);
 
         // Lấy danh sách ghế
-        List<Seat> seats = seatRepository.findAllById(seatIds);
+        List<Seat> seats = seatRepository.findAllById(request.getSeatIds());
 
         log.info("Seats count: {}", (long) seats.size());
         // Tạo TicketSeat cho từng ghế

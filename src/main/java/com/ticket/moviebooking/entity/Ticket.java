@@ -20,7 +20,7 @@ public class Ticket {
     String id;
 
     LocalDateTime bookedAt;
-    String status; // pending, paid
+    Integer totalPrice;
 
     @ManyToOne
     @JoinColumn(name = "schedule_id", nullable = false)

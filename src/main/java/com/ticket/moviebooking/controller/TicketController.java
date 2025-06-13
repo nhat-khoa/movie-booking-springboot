@@ -34,15 +34,4 @@ public class TicketController {
                 .result(ticketService.existsByScheduleIdAndSeatId(scheduleId, seatId))
                 .build();
     }
-
-    @PostMapping
-    public ApiResponse<TicketResponse> createTicket(@RequestBody TicketRequest request) {
-        return ApiResponse.<TicketResponse>builder()
-                .result(ticketService.createTicket(
-                        request.getScheduleId(),
-                        request.getSeatIds()))
-                .build();
-    }
-
-
 }

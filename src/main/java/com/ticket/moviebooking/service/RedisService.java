@@ -3,8 +3,8 @@ package com.ticket.moviebooking.service;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.ticket.moviebooking.dto.request.PaymentCreateRequest;
 import com.ticket.moviebooking.dto.request.SeatHoldRequest;
-import com.ticket.moviebooking.dto.request.TicketRequest;
 import com.ticket.moviebooking.dto.response.SeatHoldResponse;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
@@ -41,7 +41,7 @@ public class RedisService {
         String jsonValue = objectMapper.writeValueAsString(value);
 
         // Lưu vào Redis với TTL 5 phút (300 giây)
-        redisTemplate.opsForValue().set(key, jsonValue, Duration.ofMinutes(5));
+        redisTemplate.opsForValue().set(key, jsonValue, Duration.ofMinutes(15));
     }
 
     public List<SeatHoldResponse> getSeatHoldsByScheduleId(String scheduleId) {
@@ -104,26 +104,34 @@ public class RedisService {
         log.info("Deleted {} keys for scheduleId {} and userId {}", deletedCount, scheduleId, userId);
     }
 
-    public String saveTicketHold(TicketRequest request) throws JsonProcessingException {
-        String scheduleId = request.getScheduleId();
-        String userId = request.getUserId();
-        List<String> seatIds = request.getSeatIds();
-
-        String uuid = UUID.randomUUID().toString();
-        String key = String.format("ticket_hold:%s", uuid);
+    public void saveTicketHold(String appTransId, PaymentCreateRequest request) throws JsonProcessingException {
+        String key = String.format("ticket_hold:%s", appTransId);
 
         // Tạo object và chuyển sang JSON
         Map<String, Object> value = new HashMap<>();
-        value.put("schedule_id", scheduleId);
-        value.put("user_id", userId);
-        value.put("seat_ids", seatIds);
+        value.put("app_trans_id", appTransId);
+        value.put("schedule_id", request.getScheduleId());
+        value.put("user_id", request.getUserId());
+        value.put("seat_ids", request.getSeatIds());
+        value.put("total_price", request.getTotalPrice());
 
         String jsonValue = objectMapper.writeValueAsString(value);
-
         // Lưu vào Redis với TTL 5 phút (300 giây)
-        redisTemplate.opsForValue().set(key, jsonValue, Duration.ofMinutes(5));
+        redisTemplate.opsForValue().set(key, jsonValue, Duration.ofMinutes(15));
+    }
 
-        return uuid;
+    public void removeTicketHoldsByAppTransId(String appTransId) {
+
+        String pattern = String.format("ticket_hold:%s", appTransId);
+        Set<String> keys = redisTemplate.keys(pattern);
+
+        if (keys == null || keys.isEmpty()) {
+            log.info("No keys found for appTransId: {}", appTransId);
+            return;
+        }
+
+        Long deletedCount = redisTemplate.delete(keys);
+        log.info("Deleted {} keys for appTransId: {}", deletedCount, appTransId);
     }
 
     public void resetTTLByScheduleIdAndUserId(String scheduleId, String userId, Duration newTTL) {

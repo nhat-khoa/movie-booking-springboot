@@ -14,7 +14,7 @@ import java.util.List;
 public class TicketResponse {
     String id;
     LocalDateTime bookedAt;
-    String status; // pending, paid
+    Integer totalPrice;
     UserResponse user;
     ScheduleResponse schedule;
     List<SeatResponse> seatList;

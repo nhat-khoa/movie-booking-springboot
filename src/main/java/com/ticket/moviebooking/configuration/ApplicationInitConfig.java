@@ -22,6 +22,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.io.ClassPathResource;
 import org.apache.commons.csv.CSVParser;
+import org.springframework.web.client.RestTemplate;
 
 import java.io.InputStreamReader;
 import java.time.LocalDate;
@@ -76,6 +77,11 @@ public class ApplicationInitConfig {
 
             log.info("Seeding completed.");
         };
+    }
+
+    @Bean
+    public RestTemplate restTemplate() {
+        return new RestTemplate();
     }
 
     private void initSeatData(String roomId) {

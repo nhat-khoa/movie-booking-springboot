@@ -4,14 +4,15 @@ import lombok.*;
 import lombok.experimental.FieldDefaults;
 
 import java.util.List;
+
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
 @FieldDefaults(level = AccessLevel.PRIVATE)
-public class TicketRequest {
-    String scheduleId;
+public class PaymentCreateRequest {
     String userId;
+    String scheduleId;
     List<String> seatIds;
     Integer totalPrice;
 }
