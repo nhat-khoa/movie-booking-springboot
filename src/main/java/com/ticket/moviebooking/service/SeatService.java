@@ -12,6 +12,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -28,4 +29,22 @@ public class SeatService {
                 .map(seatMapper::toSeatResponse)
                 .toList();
     }
+
+    public SeatResponse findById(String seatId) {
+        return seatRepository.findById(seatId)
+                .map(seatMapper::toSeatResponse)
+                .orElseThrow(() -> new RuntimeException("Seat not found with id: " + seatId));
+    }
+    public List<SeatResponse> findByIds(List<String> seatIds) {
+        List<Seat> seats = seatRepository.findAllById(seatIds);
+
+        if (seats.size() != seatIds.size()) {
+            throw new RuntimeException("Some seats not found.");
+        }
+
+        return seats.stream()
+                .map(seatMapper::toSeatResponse)
+                .collect(Collectors.toList());
+    }
+
 }

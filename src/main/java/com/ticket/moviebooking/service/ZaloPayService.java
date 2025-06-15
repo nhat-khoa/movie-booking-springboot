@@ -134,7 +134,7 @@ public class ZaloPayService {
             );
 
             redisService.removeSeatHoldsByScheduleIdAndUserId(scheduleId, userId);
-            redisService.removeTicketHoldsByAppTransId(appTransId);
+            redisService.removeTicketHoldsByAppTransIdAndUserId(appTransId, userId);
             log.info("Successfully processed callback for appTransId: {}", appTransId);
             return Map.of("return_code", 1, "return_message", "success");
         } catch (Exception e) {

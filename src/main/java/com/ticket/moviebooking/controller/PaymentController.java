@@ -21,25 +21,41 @@ import java.util.UUID;
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 @Slf4j
 public class PaymentController {
+
     RedisService redisService;
     ZaloPayService zaloPayService;
 
     @PostMapping("/create")
     public ApiResponse<PaymentCreateResponse> create(@RequestBody PaymentCreateRequest request) throws Exception {
-        request.getSeatIds().forEach(seatId -> {
+        Boolean isSuccess = true;
+        for (String seatId : request.getSeatIds()) {
             try {
-                redisService.saveSeatHold(SeatHoldRequest.builder()
+                isSuccess = redisService.setSeatHoldTTL(SeatHoldRequest.builder()
                         .scheduleId(request.getScheduleId())
                         .seatId(seatId)
                         .userId(request.getUserId())
                         .build());
+                if (!isSuccess) {
+                    break;
+                }
             } catch (Exception e) {
                 log.error("Error saving seat hold for scheduleId: {}, seatId: {}, userId: {}",
                         request.getScheduleId(), seatId, request.getUserId(), e);
+                isSuccess = false;
             }
-        });
+        }
+
+        if(!isSuccess) {
+            return ApiResponse.<PaymentCreateResponse>builder()
+                    .result(PaymentCreateResponse.builder()
+                            .returnCode(-99)
+                            .returnMessage("No seat available or error saving seat hold")
+                            .build())
+                    .build();
+        }
+
         PaymentCreateResponse response = zaloPayService.createPayment(request);
-        redisService.saveTicketHold(response.getAppTransId(), request);
+        redisService.saveTicketHold(response.getAppTransId(), response.getOrderUrl(), request);
 
         return ApiResponse.<PaymentCreateResponse>builder()
                 .result(response)

@@ -20,6 +20,13 @@ import java.util.List;
 public class SeatController {
     SeatService seatService;
 
+    @GetMapping("/{seatId}")
+    ApiResponse<SeatResponse> getSeatById(@PathVariable("seatId") String seatId) {
+        return ApiResponse.<SeatResponse>builder()
+                .result(seatService.findById(seatId))
+                .build();
+    }
+
     @GetMapping("/by-room-id/{roomId}")
     ApiResponse<List<SeatResponse>> getMovieByDate(@PathVariable("roomId") String roomId) {
         return ApiResponse.<List<SeatResponse>>builder()
