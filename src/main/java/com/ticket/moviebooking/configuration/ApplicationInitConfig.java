@@ -22,15 +22,15 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.io.ClassPathResource;
 import org.apache.commons.csv.CSVParser;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.web.client.RestTemplate;
 
 import java.io.InputStreamReader;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Locale;
+import java.time.temporal.ChronoUnit;
+import java.util.*;
 
 @Configuration
 @RequiredArgsConstructor
@@ -43,39 +43,52 @@ public class ApplicationInitConfig {
     RoomRepository roomRepository;
     SeatRepository seatRepository;
 
+
+
     @Bean
     ApplicationRunner applicationRunner() {
         log.info("Initializing application.....");
         return args -> {
-            log.info("Seeding test schedule data...");
+            log.info("Data seeding started.");
 
-            // Import movies from CSV file by dbeaver before run this code
+            if (movieRepository.count() == 0 ) {
+               importMoviesFromCSV(); //resources/data/movie.csv
+               log.info("import movie data from data/movie.csv");
+            }
 
-//            scheduleRepository.deleteAll();
-//            initScheduleData(
-//                    "fc123dd7-5abe-4494-9eb5-d06226d6a4f5", // Room ID
-//                    "38b8eede-0ac4-4265-9496-49d15a716b19"  // Movie ID
-//            );
-//            initScheduleData(
-//                    "11120cde-ab97-4116-b64b-010beabf1d92", // Room ID
-//                    "27ce06d3-4460-4953-87da-b6fcb007c164"  // Movie ID
-//            );
-//            initScheduleData(
-//                    "ce3963d0-19c7-4a7f-a6bd-129f968cf743", // Room ID
-//                    "d78c8577-2358-4caf-b5c9-73b191b8c92e"  // Movie ID
-//            );
-//            initScheduleData(
-//                    "2df721c7-3922-4093-808f-0263ffed3c9d", // Room ID
-//                    "710af9c9-408f-4ea9-bc61-257e751fff83"  // Movie ID
-//            );
+            if (roomRepository.count() == 0) {
+                importRoomsFromCSV(); //resources/data/room.csv
+                log.info("import room data from data/room.csv");
+            }
 
-            log.info("seatRepository.count() = {}",seatRepository.count());
             if (seatRepository.count() == 0) {
+                log.info("init seat data by room data");
                 roomRepository.findAll()
                         .forEach(room -> initSeatData(room.getId()));
             }
 
-            log.info("Seeding completed.");
+            if (scheduleRepository.count() == 0) {
+                log.info("init schedule data because scheduleRepository.count() == 0");
+                LocalDate today = LocalDate.now();
+                for(int i = 0; i < 7; i++) {
+                    initScheduleData(today.plusDays(i));
+                }
+            } else {
+                LocalDateTime maxStartTime = scheduleRepository.findMaxStartTime();
+                LocalDate maxDate = maxStartTime.toLocalDate();
+                LocalDate today = LocalDate.now();
+
+                long daysBetween = ChronoUnit.DAYS.between(today, maxDate);
+
+                if (daysBetween < 6) {
+                    log.info("init schedule data because existing schedule only covers {} days", daysBetween + 1);
+                    for (int i = 1; i <= (6 - daysBetween); i++) {
+                        initScheduleData(maxDate.plusDays(i));
+                    }
+                }
+            }
+
+            log.info("Data seeding completed.");
         };
     }
 
@@ -114,44 +127,75 @@ public class ApplicationInitConfig {
         }
     }
 
-    private void initScheduleData(String roomId, String movieId) {
-        LocalDateTime startTime;
-        for (int i = 0; i < 7; i++) {
-            startTime = LocalDateTime.of(
-                    LocalDate.now().plusDays(i),
-                    LocalTime.of(8, 30)
-            );
-            for (int j = 0; j < 6; j++) {
-                try {
-                    Schedule schedule = new Schedule();
-                    schedule.setStartTime(startTime);
-                    schedule.setRoom(roomRepository
-                            .findById(roomId)
-                            .orElseThrow(() -> new AppException(ErrorCode.ROOM_NOT_EXISTED)));
-                    schedule.setMovie(movieRepository
-                            .findById(movieId)
-                            .orElseThrow(() -> new AppException(ErrorCode.MOVIE_NOT_EXISTED)));
-                    scheduleRepository.save(schedule);
-                } catch (AppException e) {
-                    log.error("Failed to save schedule: {} | Room ID: {}, Movie ID: {}",
-                            e.getErrorCode(), roomId, movieId);
-                }
-                startTime = startTime.plusHours(2).plusMinutes(30);
+    private void initScheduleData(LocalDate date) {
+        List<Room> rooms = roomRepository.findAll();
+        List<Movie> movies = movieRepository.findAll();
+
+        if (rooms.isEmpty() || movies.isEmpty()) {
+            log.warn("No room or movie available to init schedule.");
+            return;
+        }
+
+        List<LocalTime> timeSlots = Arrays.asList(
+                LocalTime.of(8, 30),
+                LocalTime.of(10, 0),
+                LocalTime.of(12, 30),
+                LocalTime.of(15, 0),
+                LocalTime.of(17, 30),
+                LocalTime.of(20, 0),
+                LocalTime.of(21, 30)
+        );
+
+        Random random = new Random();
+        int base = Math.min(5, movies.size());
+        int numberMovie = base + random.nextInt(movies.size() - base + 1);
+
+        // Dùng Set để đánh dấu movie và room đã được sử dụng
+        Set<String> usedRoomIds = new HashSet<>();
+        Set<String> usedMovieIds = new HashSet<>();
+
+        for(int i = 0; i < numberMovie; i++) {
+            Room room = rooms.get(random.nextInt(rooms.size()));
+            Movie movie = movies.get(random.nextInt(movies.size()));
+
+            // Kiểm tra xem room và movie đã được sử dụng chưa
+            if( usedRoomIds.contains(room.getId()) || usedMovieIds.contains(movie.getId())) {
+                continue; // Bỏ qua nếu đã sử dụng
             }
+
+            for (LocalTime time : timeSlots) {
+                if( random.nextBoolean() ) {
+                    continue;
+                }
+                LocalDateTime startTime = LocalDateTime.of(date, time);
+
+                Schedule schedule = new Schedule();
+                schedule.setStartTime(startTime);
+                schedule.setRoom(room);
+                schedule.setMovie(movie);
+
+                try {
+                    scheduleRepository.save(schedule);
+                } catch (DataIntegrityViolationException | AppException e) {
+                    log.error("Failed to save schedule: {} | Room ID: {}, Movie ID: {}",
+                            e.getMessage(), room.getId(), movie.getId());
+                }
+            }
+            usedRoomIds.add(room.getId());
+            usedMovieIds.add(movie.getId());
         }
     }
 
-    private void importMoviesFromCSV(String filePath) throws Exception {
-        var resource = new ClassPathResource(filePath);
+    private void importMoviesFromCSV() throws Exception {
+        var resource = new ClassPathResource("data/movie.csv");
         var reader = new InputStreamReader(resource.getInputStream());
 
         List<Movie> movies = new ArrayList<>();
         try (CSVParser csvParser = new CSVParser(reader, CSVFormat.DEFAULT.withFirstRecordAsHeader())) {
             for (CSVRecord record : csvParser) {
                 Movie movie = new Movie();
-                movie.setId(record.get("id"));
                 movie.setTitle(record.get("title"));
-                movie.setTitle(record.get("title_english"));
+                movie.setTitleEnglish(record.get("title_english"));
                 movie.setDescription(record.get("description"));
                 movie.setReleaseDate(LocalDate.parse(record.get("release_date")));
 
@@ -167,6 +211,7 @@ public class ApplicationInitConfig {
                 movie.setCast(record.get("cast"));
                 movie.setPosterUrl(record.get("poster_url"));
                 movie.setTrailerVideoUrl(record.get("trailer_video_url"));
+                movie.setBackgroundUrl(record.get("background_url"));
                 movie.setAgeRating(
                         AgeRating.valueOf(record.get("age_rating").toUpperCase(Locale.ROOT))
                 );
@@ -178,15 +223,14 @@ public class ApplicationInitConfig {
         movieRepository.saveAll(movies);
     }
 
-    private void importRoomsFromCSV(String filePath) throws Exception {
-        var resource = new ClassPathResource(filePath);
+    private void importRoomsFromCSV() throws Exception {
+        var resource = new ClassPathResource("data/room.csv");
         var reader = new InputStreamReader(resource.getInputStream());
 
         List<Room> rooms = new ArrayList<>();
         try (CSVParser csvParser = new CSVParser(reader, CSVFormat.DEFAULT.withFirstRecordAsHeader())) {
             for (CSVRecord record : csvParser) {
                 Room room = new Room();
-                room.setId(record.get("id"));
                 room.setName(record.get("name"));
                 room.setTotalSeats(Integer.parseInt(record.get("total_seats")));
                 room.setSingleSeats(Integer.parseInt(record.get("single_seats")));

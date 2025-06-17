@@ -5,9 +5,7 @@ import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 import java.time.LocalDate;
-import java.time.Duration;
 import java.util.List;
-import java.util.Locale;
 
 @Data
 @Builder
@@ -27,6 +25,9 @@ public class Movie {
     String language;
     String director;
     String category;
+
+    @Column(length = 500)
+    String backgroundUrl;
 
     @Column(length = 500)
     String posterUrl;

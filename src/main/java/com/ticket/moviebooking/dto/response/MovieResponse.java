@@ -1,15 +1,10 @@
 package com.ticket.moviebooking.dto.response;
 
-import com.ticket.moviebooking.entity.Schedule;
 import com.ticket.moviebooking.enums.AgeRating;
-import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 
-import java.time.Duration;
 import java.time.LocalDate;
-import java.util.List;
-import java.util.Locale;
 
 @Data
 @NoArgsConstructor
@@ -25,6 +20,7 @@ public class MovieResponse {
     String language;
     String director;
     String category;
+    String backgroundUrl;
     String posterUrl;
     String description;
     String cast;

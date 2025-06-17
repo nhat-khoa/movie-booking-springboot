@@ -34,4 +34,6 @@ public interface ScheduleRepository extends JpaRepository<Schedule, String> {
             @Param("date") LocalDate date
     );
 
+    @Query("SELECT MAX(s.startTime) FROM Schedule s")
+    LocalDateTime findMaxStartTime();
 }
