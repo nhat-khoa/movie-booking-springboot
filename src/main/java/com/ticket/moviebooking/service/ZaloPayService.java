@@ -2,10 +2,14 @@ package com.ticket.moviebooking.service;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.zxing.WriterException;
 import com.ticket.moviebooking.configuration.ZaloPayConfig;
 import com.ticket.moviebooking.dto.request.PaymentCreateRequest;
 import com.ticket.moviebooking.dto.request.TicketRequest;
 import com.ticket.moviebooking.dto.response.PaymentCreateResponse;
+import com.ticket.moviebooking.dto.response.TicketResponse;
+import com.ticket.moviebooking.dto.response.UserResponse;
+import jakarta.mail.MessagingException;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
@@ -20,6 +24,7 @@ import org.springframework.web.client.RestTemplate;
 
 import javax.crypto.Mac;
 import javax.crypto.spec.SecretKeySpec;
+import java.io.IOException;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.text.SimpleDateFormat;
@@ -31,11 +36,14 @@ import java.util.stream.Collectors;
 @Slf4j
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 public class ZaloPayService {
+
     ZaloPayConfig config;
     RestTemplate restTemplate;
     ObjectMapper objectMapper;
     TicketService ticketService;
     RedisService redisService;
+    MailService mailService;
+    UserService userService;
 
     public PaymentCreateResponse createPayment(PaymentCreateRequest request) throws Exception {
         String uuid = UUID.randomUUID().toString().replace("-", "");
@@ -124,7 +132,7 @@ public class ZaloPayService {
             String itemStr = (String) dataJson.get("item");
             List<String> seatIds = new ObjectMapper().readValue(itemStr, new TypeReference<List<String>>() {});
 
-            ticketService.createTicket(
+            TicketResponse ticket = ticketService.createTicket(
                     TicketRequest.builder()
                         .totalPrice(totalPrice)
                         .scheduleId(scheduleId)
@@ -133,9 +141,18 @@ public class ZaloPayService {
                     .build()
             );
 
+            UserResponse user = userService.getUserById(userId);
+
+            try {
+                mailService.sendBookingSuccessMail(user.getEmail(), ticket.getId());
+            } catch (MessagingException | IOException | WriterException e) {
+                e.printStackTrace();
+            }
+
             redisService.removeSeatHoldsByScheduleIdAndUserId(scheduleId, userId);
             redisService.removeTicketHoldsByAppTransIdAndUserId(appTransId, userId);
             log.info("Successfully processed callback for appTransId: {}", appTransId);
+
             return Map.of("return_code", 1, "return_message", "success");
         } catch (Exception e) {
             log.error("Error handling callback: {}", e.getMessage(), e);

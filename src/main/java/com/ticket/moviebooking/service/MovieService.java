@@ -11,6 +11,8 @@ import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+
 @Service
 @RequiredArgsConstructor
 @Slf4j
@@ -24,4 +26,17 @@ public class MovieService {
                 movieRepository.findById(movieId)
                         .orElseThrow(() -> new AppException(ErrorCode.MOVIE_NOT_EXISTED)));
     }
+
+    public List<MovieResponse> getMoviesNotInSchedule() {
+        return movieRepository.findMoviesNotInSchedule()
+                .stream()
+                .map(movieMapper::toMovieResponse)
+                .toList();
+    }
+
+    public List<MovieResponse> getMoviesInSchedule() {
+        return movieRepository.findMoviesInSchedule()
+                .stream()
+                .map(movieMapper::toMovieResponse)
+                .toList();}
 }

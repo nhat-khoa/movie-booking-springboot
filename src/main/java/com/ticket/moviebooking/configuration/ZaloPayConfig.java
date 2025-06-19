@@ -8,7 +8,7 @@ import org.springframework.stereotype.Component;
 @FieldDefaults(level = AccessLevel.PUBLIC, makeFinal = true)
 public class ZaloPayConfig {
     String ngrokUrlFe = "https://dbcc-115-79-138-142.ngrok-free.app ";
-    String ngrokUrlBe = "https://a5bc-115-79-138-142.ngrok-free.app";
+    String ngrokUrlBe = "https://8961-115-79-138-142.ngrok-free.app";
 
     int appId = 2554;
     String key1 = "sdngKKJmqEMzvh5QQcdD2A9XBSKUNaYn";

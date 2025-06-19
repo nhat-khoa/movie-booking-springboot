@@ -1,19 +1,22 @@
 package com.ticket.moviebooking.controller;
 
+import com.google.zxing.WriterException;
 import com.ticket.moviebooking.dto.ApiResponse;
 import com.ticket.moviebooking.dto.request.PaymentCreateRequest;
 import com.ticket.moviebooking.dto.request.SeatHoldRequest;
 import com.ticket.moviebooking.dto.response.PaymentCreateResponse;
+import com.ticket.moviebooking.service.MailService;
 import com.ticket.moviebooking.service.RedisService;
 import com.ticket.moviebooking.service.ZaloPayService;
+import jakarta.mail.MessagingException;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
 
+import java.io.IOException;
 import java.util.Map;
-import java.util.UUID;
 
 @RestController
 @RequestMapping("/payment")
