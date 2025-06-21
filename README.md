@@ -38,21 +38,6 @@ This is the backend service for a full-stack movie ticket booking platform, deve
 
 ---
 
-## 🗂️ Project Structure
-```
-movie-booking-backend/
-├── controller/ # REST & WebSocket controllers
-├── entity/ # JPA entities
-├── dto/ # Data Transfer Objects
-├── repository/ # JPA Repositories
-├── service/ # Business Logic Layer
-├── config/ # Security, WebSocket, Redis, etc.
-├── utils/ # QR Code, Mail utilities
-└── resources/
-├── application.properties
-└── templates/ # Email templates
-```
-
 ---
 
 ## ⚙️ Getting Started
