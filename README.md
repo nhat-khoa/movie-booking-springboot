@@ -42,7 +42,7 @@ This is the backend service for a full-stack movie ticket booking platform, deve
 | **Realtime** | WebSocket, SockJS, WebStomp, Redis Pub/Sub |
 
 ---
-## 🗂️ Project Structure
+## 🗂️ Project Structure (Simplified)
 ```
 src/
 └── main/
