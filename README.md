@@ -6,6 +6,11 @@ This is the backend service for a full-stack movie ticket booking platform, deve
 
 ---
 
+## 📽️ Video Demo
+
+👉 Watch At: [YouTube Video Demo](https://www.youtube.com/watch?v=r6mNs0JB_O8)
+
+---
 ## 🚀 Key Features
 
 - 🔐 **Google OAuth2 Authentication**  
@@ -24,11 +29,7 @@ This is the backend service for a full-stack movie ticket booking platform, deve
   Generates QR codes using **ZXing** for ticket validation at the entrance.
 
 ---
-## 📽️ Video Demo
 
-👉 Watch At: [YouTube Video Demo](https://www.youtube.com/watch?v=r6mNs0JB_O8)
-
----
 ## 🛠️ Technology Stack
 
 | Layer        | Tech Stack |
@@ -149,4 +150,4 @@ spring.mail.properties.mail.smtp.starttls.enable=true
 
 ## 👤 Author
 
-@nhat-khoa – Backend Developer
+@nhat-khoa
