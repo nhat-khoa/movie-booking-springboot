@@ -24,9 +24,7 @@ This is the backend service for a full-stack movie ticket booking platform, deve
   Generates QR codes using **ZXing** for ticket validation at the entrance.
 
 ---
-## 📽️ Demo
-
-[![Watch the demo](https://img.youtube.com/vi/abc123XYZ/0.jpg)](https://www.youtube.com/watch?v=r6mNs0JB_O8)
+## 📽️ Video Demo
 
 👉 Hoặc xem trực tiếp tại: [YouTube Video Demo](https://www.youtube.com/watch?v=r6mNs0JB_O8)
 
