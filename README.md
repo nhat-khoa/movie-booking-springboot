@@ -24,7 +24,13 @@ This is the backend service for a full-stack movie ticket booking platform, deve
   Generates QR codes using **ZXing** for ticket validation at the entrance.
 
 ---
+## 📽️ Demo
 
+[![Watch the demo](https://img.youtube.com/vi/abc123XYZ/0.jpg)](https://www.youtube.com/watch?v=abc123XYZ)
+
+👉 Hoặc xem trực tiếp tại: [YouTube Video Demo](https://www.youtube.com/watch?v=abc123XYZ)
+
+---
 ## 🛠️ Technology Stack
 
 | Layer        | Tech Stack |
