@@ -26,7 +26,7 @@ This is the backend service for a full-stack movie ticket booking platform, deve
 ---
 ## 📽️ Video Demo
 
-👉 Xem trực tiếp tại: [YouTube Video Demo](https://www.youtube.com/watch?v=r6mNs0JB_O8)
+👉 Watch At: [YouTube Video Demo](https://www.youtube.com/watch?v=r6mNs0JB_O8)
 
 ---
 ## 🛠️ Technology Stack
