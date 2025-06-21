@@ -128,6 +128,8 @@ spring.mail.properties.mail.smtp.auth=true
 spring.mail.properties.mail.smtp.starttls.enable=true
 ```
 
+---
+
 ## 📬 API Highlights
 
 | Method | Endpoint                     | Description                                             |
@@ -142,6 +144,8 @@ spring.mail.properties.mail.smtp.starttls.enable=true
 | WS     | `/ws`                         | WebSocket connection for live seat updates             |
 
 - Full Swagger/OpenAPI documentation included at /swagger-ui/index.html
+
+---
 
 ## 👤 Author
 
