@@ -41,7 +41,32 @@ This is the backend service for a full-stack movie ticket booking platform, deve
 | **Realtime** | WebSocket, SockJS, WebStomp, Redis Pub/Sub |
 
 ---
-
+## 🗂️ Project Structure
+```
+src/
+└── main/
+├── java/
+│ └── com.ticket.moviebooking/
+│ ├── configuration/ # Security, Redis, WebSocket, Mail configs
+│ ├── controller/ # REST and WebSocket controllers
+│ ├── dto/ # Data Transfer Objects
+│ ├── entity/ # JPA entities
+│ ├── enums/ # Enum constants
+│ ├── exception/ # Custom exceptions & handlers
+│ ├── mapper/ # MapStruct mappers
+│ ├── repository/ # Spring Data JPA repositories
+│ ├── service/ # Business logic layer
+│ ├── util/ # Utility classes (QR code, Mail, etc.)
+│ └── MovieBookingApplication.java # Main Spring Boot application
+│
+└── resources/
+├── application.properties # App configuration
+├── data/
+│ ├── movie.csv # Sample movie data
+│ └── room.csv # Sample room data
+├── static/ # Static web assets (if any)
+└── templates/ # Email templates
+```
 ---
 
 ## ⚙️ Getting Started
