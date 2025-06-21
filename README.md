@@ -101,15 +101,18 @@ spring.mail.properties.mail.smtp.starttls.enable=true
 
 ## 📬 API Highlights
 
-| Method | Endpoint                     | Description                                 |
-|--------|------------------------------|---------------------------------------------|
-| POST   | `/api/auth/login`           | Authenticate via Google OAuth2              |
-| GET    | `/api/movies`               | Fetch all movies                            |
-| GET    | `/api/schedule/{movieId}`   | Get showtimes for a movie                   |
-| GET    | `/api/seats/{scheduleId}`   | Get available seats                         |
-| POST   | `/api/book`                 | Book selected seats                         |
-| WS     | `/ws/seats/{scheduleId}`    | WebSocket connection for live seat updates  |
+| Method | Endpoint                     | Description                                             |
+|--------|------------------------------|---------------------------------------------------------|
+| POST   | `/auth/login-google`         | Authenticate via Google OAuth2                         |
+| POST   | `/auth/introspect`           | Validate and retrieve user info from access token      |
+| GET    | `/movie/{movieId}`           | Get detailed information for a specific movie          |
+| GET    | `/movie/not-in-schedule`     | Get list of movies that are not scheduled yet          |
+| GET    | `/movie/in-schedule`         | Get list of currently scheduled movies                 |
+| POST   | `/payment/create`            | Create a payment request for a movie booking           |
+| POST   | `/payment/callback`          | Handle payment gateway callback and update ticket info |
+| WS     | `/ws`                         | WebSocket connection for live seat updates             |
 
+- Full Swagger/OpenAPI documentation included at /swagger-ui/index.html
 
 ## 👤 Author
 
